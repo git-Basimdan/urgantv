@@ -3,9 +3,10 @@ google tv api28 iptv<br>
 klasik google tv iptv test amaçlı<br>yapay zeka tarafından oluşturulmuştur.<br>
 tamamen freedir.
 <br>
-# IPTV KANAL EDITORU
+# GELISMIS IPTV KANAL EDITORU
 Html dosyası şeklinde.<br>
-İndirip tarayıcınızdan kanalları test edebilirsiniz.
+İndirip tarayıcınızdan kanalları<br>
+m3u kanal listesini düzenleyebilir, test edebilirsiniz.
 <br>
 # Türkçe Liste
 Güncel Listeler burada.<br>
