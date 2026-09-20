@@ -2,6 +2,8 @@
 google tv api28 iptv<br>
 klasik google tv iptv test amaçlı<br>yapay zeka tarafından oluşturulmuştur.<br>
 tamamen freedir.
+son versiyon v0.06 kaynak kodları daha sonra gelecek.
+sadece kanal arama arızalı kullanmayın
 <br>
 # GELISMIS IPTV KANAL EDITORU
 Html dosyası şeklinde.<br>
