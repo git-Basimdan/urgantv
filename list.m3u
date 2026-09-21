@@ -353,7 +353,7 @@ https://edge1.socialsmart.tv/kocaelitv/bant1/playlist.m3u8
 #EXTINF:-1 tvg-name="KONYA OLAY TV" group-title="ok",KONYA OLAY TV
 https://live.artidijitalmedya.com/artidijital_konyaolaytv/konyaolaytv/chunks.m3u8
 
-#EXTINF:-1 tvg-name="KRAL POP" group-title="yok",KRAL POP
+#EXTINF:-1 tvg-name="KRAL POP" group-title="ok",KRAL POP
 http://dygvideo.dygdigital.com/live/hls/puhukralpopdai?m3u8
 
 #EXTINF:-1 tvg-name="KRT" group-title="yok",KRT
