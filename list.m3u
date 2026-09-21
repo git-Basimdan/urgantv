@@ -354,7 +354,7 @@ https://edge1.socialsmart.tv/kocaelitv/bant1/playlist.m3u8
 https://live.artidijitalmedya.com/artidijital_konyaolaytv/konyaolaytv/chunks.m3u8
 
 #EXTINF:-1 tvg-name="KRAL POP" group-title="yok",KRAL POP
-http://dygvideo.dygdigital.com/live/hls/kralpop
+http://dygvideo.dygdigital.com/live/hls/puhukralpopdai?m3u8
 
 #EXTINF:-1 tvg-name="KRT" group-title="yok",KRT
 https://krtdvr.blutv.com/blutv_krt_live_dvr/live_720p4350000kbps/index.m3u8
