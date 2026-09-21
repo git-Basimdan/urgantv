@@ -12,7 +12,7 @@ kanal listesi açık  -> aşağı yukarı kanal listesinde aşağı yukarı gitm
                     -> sağ tuş -> kanal ayarları ve liste ayarlarının olduğu menüyü açar<br>
                     -> sol tuş -> 2 sn basılı tutarsan m3u yükleme diyalogu çıkar.<br>
                     -> sol tuş > eğer sağ ile liste gurup görünümü açık yapıldıysa grubu aç/kapa yapar.<br>
-                    ->sağ tuş menü  -> kanal ekle -> hangi kanalda sağ tuş yaptıysan onun altına yeni kanal ekler. doldurmadığınız boşluk yok sayılır. <br>
+                    -> sağ tuş menü  -> kanal ekle -> hangi kanalda sağ tuş yaptıysan onun altına yeni kanal ekler. doldurmadığınız boşluk yok sayılır. <br>
                                     -> kanal düzenle -> hangi kanalda sağ tuş yaptıysan onu düzenlemeni ve yukarı aşağı taşımanı sağlar.<br>
                                     -> kanal sil -> hangi kanalda sağ tuş yaptıysan onu silmeni sağlar.<br>
                                     -> kanal ara -> aradığınız kanala atlamayı sağlar.<br>
