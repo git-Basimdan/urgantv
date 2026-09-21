@@ -441,7 +441,7 @@ https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/u_stream_5c9e198
 https://b01c02nl.mediatriple.net/videoonlylive/mtkgeuihrlfwlive/u_stream_5c9e2aa8acf44_1/playlist.m3u8
 
 #EXTINF:-1 tvg-name="NTV" group-title="yok",NTV
-https://dogus.daioncdn.net/ntv/ntv_720p.m3u8
+https://dogus.daioncdn.net/ntv/ntv.m3u8?ce=3&&app=7c4bb802-0c41-409e-8cd2-799984995694
 
 #EXTINF:-1 tvg-name="OLAY TURK TV" group-title="ok",OLAY TURK TV
 https://live.artidijitalmedya.com/artidijital_olayturk/olayturk/playlist.m3u8
