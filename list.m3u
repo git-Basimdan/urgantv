@@ -144,7 +144,7 @@ https://eustr73.mediatriple.net/videoonlylive/mtikoimxnztxlive/broadcast_5e3bf95
 https://playlist.fasttvcdn.com/pl/rfrk9821hdy9dayo8wfyha/dizi-tv/playlist/0.m3u8
 
 #EXTINF:-1 tvg-name="DMAX" group-title="yok",DMAX
-http://c3921155.edmonst.net/iptv/DVHP2VB5QXL7UC/2290/index.m3u8
+http://dygvideo.dygdigital.com/live/hls/dmaxdai?m3u8
 
 #EXTINF:-1 tvg-name="DOST TV" group-title="ok",DOST TV
 https://dost.stream.emsal.im/tv/live.m3u8
@@ -602,8 +602,8 @@ https://stream.tiviturk.de/live/tiviturk.m3u8
 #EXTINF:-1 tvg-name="TJK TV" group-title="ok",TJK TV
 https://tjktv-live.tjk.org/tjktv_1080p.m3u8
 
-#EXTINF:-1 tvg-name="TLC" group-title="yok",TLC
-http://c3921155.edmonst.net/iptv/DVHP2VB5QXL7UC/6915/index.m3u8
+#EXTINF:-1 tvg-name="TLC" group-title="ok",TLC
+http://dygvideo.dygdigital.com/live/hls/tlctvdai?m3u8
 
 #EXTINF:-1 tvg-name="TOKAT TV" group-title="yok",TOKAT TV
 https://cdn-tokattv.yayin.com.tr/tokattv/tokattv/chunklist.m3u8
