@@ -2,7 +2,7 @@
 google tv api28 iptv<br>
 klasik google tv iptv test amaçlı<br>
 yapay zeka tarafından oluşturulmuştur.<br>
-tamamen freedir.<br><br>
+tamamen freedir.
 
 # ne yeni ve kullanımı
 kanal listesi -> 2 modu var grup görünüümü ve liste görünümü. 15 sn kendi kayboluyor.<br>
