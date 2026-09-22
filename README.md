@@ -25,12 +25,10 @@ kanal listesi açık  -> aşağı yukarı kanal listesinde aşağı yukarı gitm
 
 # GELISMIS IPTV KANAL EDITORU
 Html dosyası şeklinde.<br>
-İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir, test edebilirsiniz.<br>
-<br>
+İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir, test edebilirsiniz.
+
 # Türkçe Liste
-Güncel Listeler burada.<br>
-Kanalların hepsi göstermiyor.<br>
-Bazıları placeholder kanal adı için.<br>
+Uygulamayı denemek için sadece TRT kanlları olan liste aşağıda.
 
 # [https://raw.githubusercontent.com/git-Basimdan/Liste/refs/heads/main/list.m3u](https://raw.githubusercontent.com/git-Basimdan/urgantv/refs/heads/main/list.m3u)
 
