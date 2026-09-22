@@ -4,8 +4,8 @@ klasik google tv iptv test amaçlı<br>
 yapay zeka tarafından oluşturulmuştur.<br>
 tamamen freedir.
 
-# ne yeni ve kullanımı
-kanal listesi -> 2 modu var grup görünüümü ve liste görünümü. 15 sn kendi kayboluyor.<br>
+# Kullanımı
+kanal listesi -> 2 modu var grup görünümü ve liste görünümü. 15 sn kendi kayboluyor.<br>
 geri tuşu -> kanal listesi göster/gizle. çift geri uygulama kapat dialogu çıkarır. diğer dialoglarda normal geri tuşu.<br>
 kanal listesi kapalı -> aşağı yukarı tuşu kanal aşağı yukarı değiştirir.<br>
 kanal listesi açık  -> aşağı yukarı kanal listesinde aşağı yukarı gitmeyi sağlar. orta tuşla kanal açılır.<br>
@@ -21,9 +21,8 @@ kanal listesi açık  -> aşağı yukarı kanal listesinde aşağı yukarı gitm
                                     ->  user agent: açık/kapalı kanallar default olarak chrome user agentıyla tanımlı.<br>
                                                     hangi kanalda sağ tuş yaptıysan onun için geçerli aç/kapat.<br>
                                     -> proxy ayarları -> hangi kanalda sağ tuş yaptıysan onun için yapabilirsin.<br>
-                                    
+                                    -> bağlantıyı test et -> hangi kanalda sağ tuş yaptıysan onun bağlantı testini yapar.
 
-<br>
 # GELISMIS IPTV KANAL EDITORU
 Html dosyası şeklinde.<br>
 İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir, test edebilirsiniz.<br>
