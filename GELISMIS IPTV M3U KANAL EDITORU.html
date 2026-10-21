@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gelişmiş IPTV M3U Editörü</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+        .container { max-width: 1650px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        /* Dosya Yükleme Alanı ve Liste Stilleri */
+        .file-upload-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-add-file { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-add-file:hover { background: #0056b3; }
+        .file-list-display { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .file-badge { background: #e9ecef; border: 1px solid #ced4da; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #495057; font-weight: 500; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; word-wrap: break-word; vertical-align: top; }
+        th { background-color: #007bff; color: white; }
+        input[type="text"] { width: 95%; padding: 4px; box-sizing: border-box; }
+        button { padding: 4px 6px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 2px; }
+        button.danger { background: #dc3545; }
+        button.warning { background: #ffc107; color: black; }
+        button.info { background: #17a2b8; }
+        button.purple { background: #6f42c1; color: white; }
+        button.watch { background: #fd7e14; color: white; }
+        button.dark { background: #343a40; color: white; }
+
+        /* Minik Silver (+) Butonu Stili */
+        button.btn-add-url {
+            background-color: #c0c0c0;
+            color: #000000;
+            border: 1px solid #a0a0a0;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 3px;
+        }
+        button.btn-add-url:hover {
+            background-color: #a9a9a9;
+        }
+
+        .url-cell-container { display: flex; flex-direction: column; gap: 4px; }
+        .url-input-row { display: flex; align-items: center; gap: 3px; width: 100%; }
+        
+        .drag-handle { cursor: grab; font-weight: bold; color: #6c757d; text-align: center; }
+        .drag-handle:active { cursor: grabbing; }
+
+        tr.dragging { opacity: 0.4; background: #e2e8f0; }
+
+        .status-checking { color: orange; font-weight: bold; }
+        .status-online { color: green; font-weight: bold; }
+        .status-offline { color: red; font-weight: bold; }
+        .duplicate-row { background-color: #ffcccc !important; }
+
+        /* Gölge Efektleri */
+        .row-watching { box-shadow: inset 0 0 8px 3px #007bff !important; }
+        .row-green { box-shadow: inset 0 0 8px 3px #28a745 !important; }
+        .row-red { box-shadow: inset 0 0 8px 3px #dc3545 !important; }
+
+        /* Renkli Radyo Arka Plan Kutuları */
+        .radio-bg-green {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 2px 5px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .radio-bg-red {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 2px 5px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .add-channel-box { background: #e9ecef; padding: 15px; border-radius: 6px; margin-top: 15px; display: none; }
+        .add-channel-box h4 { margin-top: 0; margin-bottom: 10px; }
+        .add-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 10px; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 600px; max-width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-size: 16px; color: #333; }
+        .close-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        video { width: 100%; max-height: 350px; background: black; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Gelişmiş IPTV M3U Editörü</h2>
+    
+    <!-- Dosya Ekleme Alanı -->
+    <div class="file-upload-wrapper">
+        <button class="btn-add-file" onclick="document.getElementById('m3uFile').click()">+ Dosya Ekle</button>
+        <input type="file" id="m3uFile" accept=".m3u,.m3u8" style="display:none;">
+        <div id="fileListDisplay" class="file-list-display"></div>
+    </div>
+    
+    <div id="editorArea" style="display:none;">
+        <div class="actions">
+            <button class="warning" onclick="testAllChannels()">Tüm Kanalları Test Et</button>
+            <button class="purple" onclick="sortChannelsByName()">Aynı İsimli Kanalları Grupla</button>
+            <button class="info" onclick="removeDuplicateUrls()">Mükerrer URL'leri Temizle</button>
+            <button class="dark" onclick="toggleAutoChno()">Otomatik Kanal No Aç/Kapat</button>
+            <button style="background: #17a2b8;" onclick="toggleAddBox()">+ Yeni Kanal Ekle Paneli</button>
+            <button id="downloadBtn" style="background: #007bff;">Listeyi İndir (.m3u)</button>
+        </div>
+
+        <!-- Yeni Kanal Ekleme Paneli -->
+        <div id="addChannelBox" class="add-channel-box">
+            <h4>Manuel Yeni Kanal Ekle</h4>
+            <div class="add-grid">
+                <input type="text" id="newNameToAdd" placeholder="Kanal Adı *">
+                <input type="text" id="newGroupToAdd" placeholder="Grup / Kategori">
+                <input type="text" id="newLogoToAdd" placeholder="Logo URL (tvg-logo)">
+                <input type="text" id="newIdToAdd" placeholder="Kanal ID (tvg-id)">
+                <input type="text" id="newChnoToAdd" placeholder="Kanal No (tvg-chno)">
+                <input type="text" id="newUrlToAdd" placeholder="Yayın URL *">
+            </div>
+            <button onclick="addNewChannel()">Listeye Ekle</button>
+        </div>
+        
+        <p style="font-size: 13px; color: #d9534f; margin-top: 10px;">
+            ⚠️ Yayın URL alanındaki <b>[+]</b> butonuna basarak yedek URL ekleyebilirsiniz. Yedek URL'lerin yanında sadece <b>İzle</b> ve <b>X (Sil)</b> butonları bulunur.
+        </p>
+
+        <h3>Kanal Listesi (<span id="channelCount">0</span> Kanal)</h3>
+        <table id="channelTable">
+            <thead>
+                <tr>
+                    <th style="width: 3%;">Taşı</th>
+                    <th style="width: 3%;">No</th>
+                    <th style="width: 13%;">Kanal Adı</th>
+                    <th style="width: 10%;">Grup / Kategori</th>
+                    <th style="width: 7%;">Logo URL</th>
+                    <th style="width: 6%;">Kanal ID</th>
+                    <th style="width: 5%;">Kanal No</th>
+                    <th style="width: 31%;">Yayın URL & Yedekler</th>
+                    <th style="width: 7%;">Durum</th>
+                    <th style="width: 15%;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Kanallar buraya yüklenecek -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Oynatıcı Pop-up Penceresi -->
+<div id="playerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Kanal Oynatılıyor</h3>
+            <button class="close-btn" onclick="closePlayer()">Kapat</button>
+        </div>
+        <video id="videoPlayer" controls autoplay></video>
+        <p style="font-size: 11px; color: #666; margin-top: 8px;">Not: Tarayıcınız tarafından desteklenen doğrudan HTTP/HTTPS bağlantılarını oynatır.</p>
+    </div>
+</div>
+
+<script>
+    let channels = [];
+    let uploadedFiles = [];
+    let draggedIndex = null;
+    let autoChnoActive = false;
+    let currentWatchingIndex = null;
+
+    document.getElementById('m3uFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            parseM3U(evt.target.result, file.name);
+            e.target.value = '';
+        };
+        reader.readAsText(file);
+    });
+
+    function parseM3U(data, fileName) {
+        const newChannels = [];
+        const lines = data.split(/\r?\n/);
+        let currentChannel = null;
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (line.startsWith('#EXTINF:')) {
+                if (currentChannel && currentChannel.url) {
+                    newChannels.push(currentChannel);
+                }
+                currentChannel = { status: 'Test Edilmedi', rowColor: '', backupUrls: [] };
+                let commaIndex = line.lastIndexOf(',');
+                if (commaIndex !== -1) {
+                    currentChannel.name = line.substring(commaIndex + 1);
+                    let metadata = line.substring(8, commaIndex);
+                    
+                    let groupMatch = metadata.match(/group-title="([^"]*)"/);
+                    let logoMatch = metadata.match(/tvg-logo="([^"]*)"/);
+                    let idMatch = metadata.match(/tvg-id="([^"]*)"/);
+                    let chnoMatch = metadata.match(/tvg-chno="([^"]*)"/);
+
+                    currentChannel.group = groupMatch ? groupMatch[1] : '';
+                    currentChannel.logo = logoMatch ? logoMatch[1] : '';
+                    currentChannel.tvgId = idMatch ? idMatch[1] : '';
+                    currentChannel.tvgChno = chnoMatch ? chnoMatch[1] : '';
+                }
+            } else if (line && currentChannel) {
+                if (!line.startsWith('#')) {
+                    if (!currentChannel.url) {
+                        currentChannel.url = line;
+                    } else {
+                        currentChannel.backupUrls.push({ url: '#' + line });
+                    }
+                } else if (line.startsWith('#http://') || line.startsWith('#https://') || line.startsWith('#rtmp://')) {
+                    currentChannel.backupUrls.push({ url: line });
+                }
+            }
+        }
+        if (currentChannel && currentChannel.url) {
+            newChannels.push(currentChannel);
+        }
+
+        channels = [...newChannels, ...channels];
+
+        uploadedFiles.push(fileName);
+        updateFileListDisplay();
+
+        renderTable();
+        document.getElementById('editorArea').style.display = 'block';
+    }
+
+    function updateFileListDisplay() {
+        const container = document.getElementById('fileListDisplay');
+        container.innerHTML = '';
+        uploadedFiles.forEach((name, idx) => {
+            const badge = document.createElement('span');
+            badge.className = 'file-badge';
+            badge.textContent = `${idx + 1}. ${name}`;
+            container.appendChild(badge);
+        });
+    }
+
+    function renderTable() {
+        const tbody = document.querySelector('#channelTable tbody');
+        tbody.innerHTML = '';
+        document.getElementById('channelCount').textContent = channels.length;
+
+        const nameCounts = {};
+        channels.forEach(channel => {
+            let name = channel.name ? channel.name.trim().toLowerCase() : '';
+            nameCounts[name] = (nameCounts[name] || 0) + 1;
+        });
+
+        channels.forEach((channel, index) => {
+            if (!channel.backupUrls) channel.backupUrls = [];
+
+            if (autoChnoActive) {
+                channel.tvgChno = (index + 1).toString();
+            }
+
+            let statusClass = '';
+            if (channel.status === 'Çalışıyor') statusClass = 'status-online';
+            else if (channel.status === 'Çalışmıyor') statusClass = 'status-offline';
+            else if (channel.status === 'Test Ediliyor...') statusClass = 'status-checking';
+
+            let cleanName = channel.name ? channel.name.trim().toLowerCase() : '';
+            let isDuplicateName = nameCounts[cleanName] > 1;
+            
+            let rowClass = isDuplicateName ? 'duplicate-row' : '';
+            if (channel.rowColor === 'green') rowClass += ' row-green';
+            else if (channel.rowColor === 'red') rowClass += ' row-red';
+            
+            if (currentWatchingIndex === index) {
+                rowClass += ' row-watching';
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = rowClass.trim();
+            tr.id = `row-${index}`;
+            tr.draggable = true;
+            tr.dataset.index = index;
+
+            tr.addEventListener('dragstart', function(e) {
+                draggedIndex = index;
+                setTimeout(() => tr.classList.add('dragging'), 0);
+            });
+
+            tr.addEventListener('dragend', function(e) {
+                tr.classList.remove('dragging');
+                draggedIndex = null;
+            });
+
+            tr.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            tr.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (draggedIndex === null || draggedIndex === index) return;
+                const movedItem = channels.splice(draggedIndex, 1)[0];
+                channels.splice(index, 0, movedItem);
+                if (currentWatchingIndex === draggedIndex) currentWatchingIndex = index;
+                renderTable();
+            });
+
+            let greenChecked = channel.rowColor === 'green' ? 'checked' : '';
+            let redChecked = channel.rowColor === 'red' ? 'checked' : '';
+
+            // Yedek URL Kutularını Hazırla (Sadece İzle ve Sil Butonlarıyla)
+            let backupHtml = '';
+            channel.backupUrls.forEach((bObj, bIdx) => {
+                backupHtml += `
+                    <div class="url-input-row" style="margin-top: 3px;">
+                        <input type="text" value="${bObj.url}" placeholder="#http://yedek-link..." onchange="channels[${index}].backupUrls[${bIdx}].url=this.value" style="width: 70%;">
+                        <button class="watch" style="padding: 2px 5px; font-size: 10px;" onclick="watchBackupUrl(${index}, ${bIdx})" title="Yedek URL'yi İzle">İzle</button>
+                        <button class="danger" style="padding: 2px 5px; font-size: 10px;" onclick="removeBackupUrl(${index}, ${bIdx})" title="Yedek URL'yi Sil">X</button>
+                    </div>
+                `;
+            });
+
+            tr.innerHTML = `
+                <td class="drag-handle" title="Basılı Tutup Sürükleyin">☰</td>
+                <td style="text-align: center; font-weight: bold; color: #555;">${index + 1}</td>
+                <td><input type="text" value="${channel.name || ''}" onchange="channels[${index}].name=this.value; renderTable();"></td>
+                <td><input type="text" value="${channel.group || ''}" onchange="channels[${index}].group=this.value"></td>
+                <td><input type="text" value="${channel.logo || ''}" onchange="channels[${index}].logo=this.value"></td>
+                <td><input type="text" value="${channel.tvgId || ''}" onchange="channels[${index}].tvgId=this.value"></td>
+                <td><input type="text" value="${channel.tvgChno || ''}" onchange="channels[${index}].tvgChno=this.value"></td>
+                <td>
+                    <div class="url-cell-container">
+                        <div class="url-input-row">
+                            <input type="text" value="${channel.url || ''}" onchange="channels[${index}].url=this.value">
+                            <button class="btn-add-url" onclick="addBackupUrlField(${index})" title="Yedek URL Ekle">+</button>
+                        </div>
+                        ${backupHtml}
+                    </div>
+                </td>
+                <td id="status-${index}" class="${statusClass}">${channel.status}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 3px; flex-wrap: nowrap;">
+                        <button class="watch" onclick="watchChannel(${index})" title="İzle">İzle</button>
+                        <button onclick="testSingleChannel(${index})" title="Test Et">Test</button>
+                        <button class="danger" onclick="deleteChannel(${index})" title="Sil">Sil</button>
+                        <span class="radio-bg-green" title="Yeşil Gölge">
+                            <input type="radio" name="rowColor_${index}" ${greenChecked} onclick="handleRadioClick(this, ${index}, 'green')" style="margin:0; cursor:pointer;">
+                        </span>
+                        <span class="radio-bg-red" title="Kırmızı Gölge">
+                            <input type="radio" name="rowColor_${index}" ${redChecked} onclick="handleRadioClick(this, ${index}, 'red')" style="margin:0; cursor:pointer;">
+                        </span>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Yedek URL Ekleme
+    function addBackupUrlField(index) {
+        if (!channels[index].backupUrls) {
+            channels[index].backupUrls = [];
+        }
+        channels[index].backupUrls.push({ url: '#http://' });
+        renderTable();
+    }
+
+    // Yedek URL Silme
+    function removeBackupUrl(channelIndex, backupIndex) {
+        channels[channelIndex].backupUrls.splice(backupIndex, 1);
+        renderTable();
+    }
+
+    // Yedek URL İzleme
+    function watchBackupUrl(channelIndex, backupIndex) {
+        currentWatchingIndex = channelIndex;
+        renderTable();
+
+        const channel = channels[channelIndex];
+        let rawUrl = channel.backupUrls[backupIndex].url.trim();
+        if (rawUrl.startsWith('#')) {
+            rawUrl = rawUrl.substring(1).trim();
+        }
+
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('videoPlayer');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = (channel.name ? channel.name.trim() : 'Kanal') + ' (Yedek URL) - Oynatılıyor';
+        video.src = rawUrl;
+        modal.style.display = 'flex';
+        video.play().catch(e => {
+            console.log("Oynatma hatası:", e);
+        });
+    }
+
+    function handleRadioClick(radio, index, color) {
+        if (channels[index].rowColor === color) {
+            channels[index].rowColor = '';
+            radio.checked = false;
+        } else {
+            channels[index].rowColor = color;
+        }
+        renderTable();
+    }
+
+    function toggleAutoChno() {
+        autoChnoActive = !autoChnoActive;
+        if (!autoChnoActive) {
+            channels.forEach(ch => ch.tvgChno = '');
+            alert('Otomatik kanal numaralandırma kaldırıldı.');
+        } else {
+            alert('Otomatik kanal numaralandırma etkinleştirildi!');
+        }
+        renderTable();
+    }
+
+    function watchChannel(index) {
+        currentWatchingIndex = index;
+        renderTable();
+
+        const channel = channels[index];
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('videoPlayer');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = (channel.name ? channel.name.trim() : 'Kanal') + ' - Oynatılıyor';
+        video.src = channel.url;
+        modal.style.display = 'flex';
+        video.play().catch(e => {
+            console.log("Oynatma hatası:", e);
+        });
+    }
+
+    function closePlayer() {
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('videoPlayer');
+        video.pause();
+        video.src = '';
+        currentWatchingIndex = null;
+        renderTable();
+        modal.style.display = 'none';
+    }
+
+    function toggleAddBox() {
+        const box = document.getElementById('addChannelBox');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function addNewChannel() {
+        const name = document.getElementById('newNameToAdd').value.trim();
+        const url = document.getElementById('newUrlToAdd').value.trim();
+
+        if (!name || !url) {
+            alert('Lütfen en az "Kanal Adı" ve "Yayın URL" alanlarını doldurun!');
+            return;
+        }
+
+        const newChannel = {
+            name: name,
+            group: document.getElementById('newGroupToAdd').value.trim(),
+            logo: document.getElementById('newLogoToAdd').value.trim(),
+            tvgId: document.getElementById('newIdToAdd').value.trim(),
+            tvgChno: autoChnoActive ? (channels.length + 1).toString() : document.getElementById('newChnoToAdd').value.trim(),
+            url: url,
+            status: 'Test Edilmedi',
+            rowColor: '',
+            backupUrls: []
+        };
+
+        channels.push(newChannel);
+        renderTable();
+
+        document.getElementById('newNameToAdd').value = '';
+        document.getElementById('newGroupToAdd').value = '';
+        document.getElementById('newLogoToAdd').value = '';
+        document.getElementById('newIdToAdd').value = '';
+        document.getElementById('newChnoToAdd').value = '';
+        document.getElementById('newUrlToAdd').value = '';
+
+        alert('Yeni kanal başarıyla eklendi!');
+    }
+
+    function sortChannelsByName() {
+        channels.sort((a, b) => {
+            let nameA = a.name ? a.name.trim().toLowerCase() : '';
+            let nameB = b.name ? b.name.trim().toLowerCase() : '';
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+        });
+        currentWatchingIndex = null;
+        renderTable();
+        alert('Kanallar isme göre sıralandı!');
+    }
+
+    function removeDuplicateUrls() {
+        const uniqueUrls = new Set();
+        const uniqueChannels = [];
+        let duplicateCount = 0;
+
+        channels.forEach(channel => {
+            let cleanUrl = channel.url.trim();
+            if (!uniqueUrls.has(cleanUrl)) {
+                uniqueUrls.add(cleanUrl);
+                uniqueChannels.push(channel);
+            } else {
+                duplicateCount++;
+            }
+        });
+
+        channels = uniqueChannels;
+        currentWatchingIndex = null;
+        renderTable();
+        alert(`${duplicateCount} adet mükerrer URL'ye sahip kanal temizlendi!`);
+    }
+
+    async function testSingleChannel(index) {
+        const channel = channels[index];
+        const statusTd = document.getElementById(`status-${index}`);
+        channel.status = 'Test Ediliyor...';
+        statusTd.className = 'status-checking';
+        statusTd.textContent = channel.status;
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            await fetch(channel.url, {
+                method: 'GET',
+                mode: 'no-cors',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            channel.status = 'Çalışıyor';
+            statusTd.className = 'status-online';
+            statusTd.textContent = channel.status;
+        } catch (error) {
+            channel.status = 'Çalışmıyor';
+            statusTd.className = 'status-offline';
+            statusTd.textContent = channel.status;
+        }
+    }
+
+    async function testAllChannels() {
+        for (let i = 0; i < channels.length; i++) {
+            await testSingleChannel(i);
+        }
+        alert('Tüm kanal testleri tamamlandı!');
+    }
+
+    function deleteChannel(index) {
+        if (currentWatchingIndex === index) {
+            closePlayer();
+        }
+        channels.splice(index, 1);
+        if (currentWatchingIndex !== null && currentWatchingIndex > index) {
+            currentWatchingIndex--;
+        }
+        renderTable();
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        let m3uContent = "#EXTM3U\n";
+        
+        channels.forEach(ch => {
+            let attributes = '#EXTINF:-1';
+            
+            if (ch.tvgId && ch.tvgId.trim() !== '') attributes += ` tvg-id="${ch.tvgId.trim()}"`;
+            if (ch.name && ch.name.trim() !== '') attributes += ` tvg-name="${ch.name.trim()}"`;
+            if (ch.logo && ch.logo.trim() !== '') attributes += ` tvg-logo="${ch.logo.trim()}"`;
+            if (ch.group && ch.group.trim() !== '') attributes += ` group-title="${ch.group.trim()}"`;
+            if (ch.tvgChno && ch.tvgChno.trim() !== '') attributes += ` tvg-chno="${ch.tvgChno.trim()}"`;
+            
+            let channelName = ch.name ? ch.name.trim() : 'İsimsiz Kanal';
+            let channelUrl = ch.url ? ch.url.trim() : '';
+
+            m3uContent += `${attributes},${channelName}\n`;
+            m3uContent += `${channelUrl}\n`;
+
+            if (ch.backupUrls && ch.backupUrls.length > 0) {
+                ch.backupUrls.forEach(bObj => {
+                    if (bObj.url && bObj.url.trim() !== '') {
+                        let formattedBackup = bObj.url.trim();
+                        if (!formattedBackup.startsWith('#')) {
+                            formattedBackup = '#' + formattedBackup;
+                        }
+                        m3uContent += `${formattedBackup}\n`;
+                    }
+                });
+            }
+            m3uContent += `\n`;
+        });
+
+        const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'duzenlenmis_temiz_liste.m3u';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+</script>
+
+</body>
+</html>
