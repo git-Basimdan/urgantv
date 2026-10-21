@@ -51,3 +51,6 @@ Uygulamayı denemek için sadece TRT kanlları olan liste aşağıda.
 
 Dikkat!! Dosyalar, programlar ve paylaşımlar test amaçlıdır.<br>
 Tv box ınızı test ettikten sonra dosyaları silin.
+
+# v2.beta
+https://drive.google.com/file/d/1fMc7chVPAFuZensngA5KIAaoUXHxU1dJ/view?usp=sharing
