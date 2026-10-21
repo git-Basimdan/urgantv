@@ -1,8 +1,27 @@
+# GELISMIS IPTV KANAL EDITORU
+Html dosyası şeklinde.<br>
+İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir, test edebilirsiniz.
+Yenilendi.<br>
+
+# ne yeni
+artık art arta m3u listesi ekleye bilirsiniz, başa ekler<br>
+artık yedek url de eklenebiliyor.
+
+
 # urgantv v1.0
 google tv api28 iptv<br>
 klasik google tv iptv test amaçlı<br>
 yapay zeka tarafından oluşturulmuştur.<br>
-tamamen freedir.
+tamamen freedir.<br>
+exoplayer tabanlıdır.<br>
+<br>
+yakında.. v2 geliyor ... (burdan yayınlayamayacağız boyutu büyük)<br>
+onda youtube player eklendi.<br>
+ikinci player vlc eklendi.<br>
+kanal şifre koyma eklendi.<br>
+tabii boyutu arttı, burası 25 mb kadar izin veriyor.<br>
+linki buraya da paylaşırız.<br>
+bunu kullanmaya devam edebilirsiniz.<br>
 
 # Kullanımı
 kanal listesi -> 2 modu var grup görünümü ve liste görünümü. 15 sn kendi kayboluyor.<br>
@@ -22,10 +41,6 @@ kanal listesi açık  -> aşağı yukarı kanal listesinde aşağı yukarı gitm
                                                     hangi kanalda sağ tuş yaptıysan onun için geçerli aç/kapat.<br>
                                     -> proxy ayarları -> hangi kanalda sağ tuş yaptıysan onun için yapabilirsin.<br>
                                     -> bağlantıyı test et -> hangi kanalda sağ tuş yaptıysan onun bağlantı testini yapar.
-
-# GELISMIS IPTV KANAL EDITORU
-Html dosyası şeklinde.<br>
-İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir, test edebilirsiniz.
 
 # Türkçe Liste
 Uygulamayı denemek için sadece TRT kanlları olan liste aşağıda.
