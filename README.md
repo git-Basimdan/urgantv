@@ -1,6 +1,8 @@
 # GELISMIS IPTV KANAL EDITORU
 Html dosyası şeklinde.<br>
-İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir, test edebilirsiniz.
+İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir,<br>
+test edebilir, izleyebilir, kanalların yerini değiştirebilir,<br>
+gruplandırabilir, kanal nosu verebilirsiniz.<br>
 Yenilendi.<br>
 
 # ne yeni
