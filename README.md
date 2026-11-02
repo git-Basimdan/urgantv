@@ -89,6 +89,7 @@ Kanal listesindeyken bir kanal üzerinde **Sağ Tuş**a basarak:
 
 <hr>
 <br>
+
 # GELISMIS IPTV KANAL EDITORU
 Html dosyası şeklinde.<br>
 İndirip tarayıcınızdan m3u kanal listesini düzenleyebilir,<br>
