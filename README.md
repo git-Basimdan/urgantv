@@ -1,5 +1,6 @@
 # 📺 Urgan TV V2 | Profesyonel Android TV IPTV Oynatıcı
-# https://drive.google.com/file/d/1-PHKk3E_8nxgM0PFQY6tJCCxYuf17-5C/view?usp=sharing
+# https://drive.google.com/file/d/1-PHKk3E_8nxgM0PFQY6tJCCxYuf17-5C/view?usp=drive_link
+# https://h1.nu/aa234567
 
 > **Urgan TV**, Android TV kutuları (TV Box), akıllı televizyonlar ve mobil cihazlar için özel olarak geliştirilmiş; **ExoPlayer**, **VLC** ve **YouTube** motorlarını tek çatı altında buluşturan, yüksek performanslı ve gelişmiş özelliklere sahip yeni nesil bir IPTV oynatıcı uygulamasıdır.
 
