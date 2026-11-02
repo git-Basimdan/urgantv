@@ -109,13 +109,6 @@ yapay zeka tarafından oluşturulmuştur.<br>
 tamamen freedir.<br>
 exoplayer tabanlıdır.<br>
 <br>
-yakında.. v2 geliyor ... (burdan yayınlayamayacağız boyutu büyük)<br>
-onda youtube player eklendi.<br>
-ikinci player vlc eklendi.<br>
-kanal şifre koyma eklendi.<br>
-tabii boyutu arttı, burası 25 mb kadar izin veriyor.<br>
-linki buraya da paylaşırız.<br>
-bunu kullanmaya devam edebilirsiniz.<br>
 
 # Kullanımı
 kanal listesi -> 2 modu var grup görünümü ve liste görünümü. 15 sn kendi kayboluyor.<br>
