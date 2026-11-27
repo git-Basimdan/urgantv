@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced IPTV M3U Editor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f9; }
+        .container { max-width: 1650px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        /* File and URL Upload Area Styles */
+        .file-upload-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn-add-file { padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .btn-add-file:hover { background: #0056b3; }
+        
+        .url-fetch-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f3f5;
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .url-fetch-input {
+            width: 310px !important;
+            padding: 6px 10px !important;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .btn-fetch-url {
+            padding: 7px 14px;
+            background: #6610f2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .btn-fetch-url:hover { background: #520dc2; }
+        .btn-fetch-url:disabled { background: #9ea5ad; cursor: not-allowed; }
+
+        .file-list-display { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .file-badge { background: #e9ecef; border: 1px solid #ced4da; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #495057; font-weight: 500; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; word-wrap: break-word; vertical-align: top; }
+        th { background-color: #007bff; color: white; }
+        th.sortable-th {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        th.sortable-th:hover {
+            background-color: #0056b3;
+        }
+        .sort-indicator {
+            font-size: 11px;
+            margin-left: 4px;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+
+        input[type="text"] { width: 95%; padding: 4px; box-sizing: border-box; }
+        button { padding: 4px 6px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 2px; }
+        button.danger { background: #dc3545; }
+        button.warning { background: #ffc107; color: black; }
+        button.info { background: #17a2b8; }
+        button.purple { background: #6f42c1; color: white; }
+        button.watch { background: #fd7e14; color: white; }
+        button.dark { background: #343a40; color: white; }
+        button.teal { background: #20c997; color: white; font-weight: bold; }
+
+        /* Mini Silver (+) Button Style */
+        button.btn-add-url {
+            background-color: #c0c0c0;
+            color: #000000;
+            border: 1px solid #a0a0a0;
+            font-weight: bold;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 3px;
+        }
+        button.btn-add-url:hover {
+            background-color: #a9a9a9;
+        }
+
+        .url-cell-container { display: flex; flex-direction: column; gap: 4px; }
+        .url-input-row { display: flex; align-items: center; gap: 3px; width: 100%; }
+        
+        .drag-handle { cursor: grab; font-weight: bold; color: #6c757d; text-align: center; }
+        .drag-handle:active { cursor: grabbing; }
+
+        tr.dragging { opacity: 0.4; background: #e2e8f0; }
+
+        .status-checking { color: orange; font-weight: bold; }
+        .status-online { color: green; font-weight: bold; }
+        .status-offline { color: red; font-weight: bold; }
+        .duplicate-row { background-color: #ffcccc !important; }
+
+        /* Highlight Shadow Effects */
+        .row-watching { box-shadow: inset 0 0 8px 3px #007bff !important; }
+        .row-green { box-shadow: inset 0 0 8px 3px #28a745 !important; }
+        .row-red { box-shadow: inset 0 0 8px 3px #dc3545 !important; }
+
+        /* Colored Radio Background Boxes */
+        .radio-bg-green {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 2px 5px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .radio-bg-red {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 2px 5px;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .actions button { padding: 7px 12px; font-size: 12px; }
+        .add-channel-box { background: #e9ecef; padding: 15px; border-radius: 6px; margin-top: 15px; display: none; }
+        .add-channel-box h4 { margin-top: 0; margin-bottom: 10px; }
+        .add-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 10px; }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 600px; max-width: 90%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-align: center; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .modal-header h3 { margin: 0; font-size: 16px; color: #333; }
+        .close-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        video { width: 100%; max-height: 350px; background: black; border-radius: 4px; }
+
+        /* Category Export List Styles */
+        .category-list-box {
+            max-height: 320px;
+            overflow-y: auto;
+            text-align: left;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: #f9f9fb;
+        }
+        .category-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .category-item:hover { background: #e2e8f0; }
+        .category-item:last-child { border-bottom: none; }
+        .category-item label { cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500; color: #333; width: 100%; }
+        .category-count-badge { background: #007bff; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Advanced IPTV M3U Editor</h2>
+    
+    <!-- File Upload and Fetch From URL Area -->
+    <div class="file-upload-wrapper">
+        <button class="btn-add-file" onclick="document.getElementById('m3uFile').click()">+ Add File</button>
+        <input type="file" id="m3uFile" accept=".m3u,.m3u8" style="display:none;">
+        
+        <div class="url-fetch-group">
+            <input type="text" id="m3uUrlInput" class="url-fetch-input" placeholder="Paste M3U / M3U8 playlist URL..." onkeydown="if(event.key==='Enter') fetchM3UFromUrl()">
+            <button id="fetchUrlBtn" class="btn-fetch-url" onclick="fetchM3UFromUrl()">🌐 Fetch From URL</button>
+        </div>
+
+        <div id="fileListDisplay" class="file-list-display"></div>
+    </div>
+    
+    <div id="editorArea" style="display:none;">
+        <div class="actions">
+            <button class="warning" onclick="testAllChannels()">Test All Channels</button>
+            <button class="purple" onclick="sortChannelsByName()">Group Same-Name Channels</button>
+            <button class="info" onclick="removeDuplicateUrls()">Remove Duplicate URLs</button>
+            <button class="dark" onclick="toggleAutoChno()">Toggle Auto Channel No</button>
+            <button style="background: #17a2b8;" onclick="toggleAddBox()">+ Add New Channel Panel</button>
+            <button class="teal" onclick="openGroupExportModal()">Export by Category</button>
+            <button id="downloadBtn" style="background: #007bff;">Download Full List (.m3u)</button>
+        </div>
+
+        <!-- Add New Channel Panel -->
+        <div id="addChannelBox" class="add-channel-box">
+            <h4>Add New Channel Manually</h4>
+            <div class="add-grid">
+                <input type="text" id="newNameToAdd" placeholder="Channel Name *">
+                <input type="text" id="newGroupToAdd" placeholder="Group / Category">
+                <input type="text" id="newLogoToAdd" placeholder="Logo URL (tvg-logo)">
+                <input type="text" id="newIdToAdd" placeholder="Channel ID (tvg-id)">
+                <input type="text" id="newChnoToAdd" placeholder="Channel No (tvg-chno)">
+                <input type="text" id="newUrlToAdd" placeholder="Stream URL *">
+            </div>
+            <button onclick="addNewChannel()">Add to List</button>
+        </div>
+        
+        <p style="font-size: 13px; color: #d9534f; margin-top: 10px;">
+            ⚠️ Click the <b>[+]</b> button in the Stream URL field to add backup URLs. Click the <b>Channel Name</b> and <b>Group / Category</b> headers to sort by <b>A-Z / Z-A / Random</b>.
+        </p>
+
+        <h3>Channel List (<span id="channelCount">0</span> Channels)</h3>
+        <table id="channelTable">
+            <thead>
+                <tr>
+                    <th style="width: 3%;">Move</th>
+                    <th style="width: 3%;">No</th>
+                    <th style="width: 13%;" class="sortable-th" onclick="cycleColumnSort('name')" title="Click to sort A-Z / Z-A / Random">
+                        Channel Name <span id="sort-indicator-name" class="sort-indicator">⇅</span>
+                    </th>
+                    <th style="width: 10%;" class="sortable-th" onclick="cycleColumnSort('group')" title="Click to sort A-Z / Z-A / Random">
+                        Group / Category <span id="sort-indicator-group" class="sort-indicator">⇅</span>
+                    </th>
+                    <th style="width: 7%;">Logo URL</th>
+                    <th style="width: 6%;">Channel ID</th>
+                    <th style="width: 5%;">Channel No</th>
+                    <th style="width: 31%;">Stream URL & Backups</th>
+                    <th style="width: 7%;">Status</th>
+                    <th style="width: 15%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Channels will be rendered here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Player Modal -->
+<div id="playerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Playing Channel</h3>
+            <button class="close-btn" onclick="closePlayer()">Close</button>
+        </div>
+        <video id="videoPlayer" controls autoplay></video>
+        <p style="font-size: 11px; color: #666; margin-top: 8px;">Note: Plays direct HTTP/HTTPS streams supported by your browser.</p>
+    </div>
+</div>
+
+<!-- Export by Category Modal -->
+<div id="groupExportModal" class="modal">
+    <div class="modal-content" style="width: 500px;">
+        <div class="modal-header">
+            <h3>Select Group / Category to Export</h3>
+            <button class="close-btn" onclick="closeGroupExportModal()">Close</button>
+        </div>
+        <p style="font-size: 13px; color: #555; text-align: left; margin-top: 0;">
+            Select the categories you want to download as a separate <b>.m3u</b> file:
+        </p>
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <button class="info" onclick="toggleAllGroupCheckboxes(true)">Select All</button>
+            <button class="dark" onclick="toggleAllGroupCheckboxes(false)">Clear Selection</button>
+        </div>
+        <div id="groupListContainer" class="category-list-box">
+            <!-- Categories will be populated dynamically -->
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button style="background: #28a745; padding: 8px 16px; font-size: 13px; font-weight: bold;" onclick="exportSelectedGroups()">Download Selected (.m3u)</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let channels = [];
+    let uploadedFiles = [];
+    let draggedIndex = null;
+    let autoChnoActive = false;
+    let currentWatchingIndex = null;
+
+    let sortState = {
+        column: null,
+        mode: 'none'
+    };
+
+    document.getElementById('m3uFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            parseM3U(evt.target.result, file.name);
+            e.target.value = '';
+        };
+        reader.readAsText(file);
+    });
+
+    // --- FETCH M3U PLAYLIST FROM URL ---
+    async function fetchM3UFromUrl() {
+        const input = document.getElementById('m3uUrlInput');
+        const btn = document.getElementById('fetchUrlBtn');
+        const rawUrl = input.value.trim();
+
+        if (!rawUrl) {
+            alert('Please enter a valid M3U / M3U8 URL!');
+            input.focus();
+            return;
+        }
+
+        if (!/^https?:\/\//i.test(rawUrl)) {
+            alert('URL must start with http:// or https://!');
+            return;
+        }
+
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '⏳ Fetching...';
+
+        try {
+            let textData = '';
+
+            // 1. Try direct fetch first
+            try {
+                const directResp = await fetch(rawUrl);
+                if (!directResp.ok) throw new Error('Direct access HTTP error: ' + directResp.status);
+                textData = await directResp.text();
+            } catch (directErr) {
+                // 2. Fallback to CORS proxy if blocked by browser CORS policy
+                const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(rawUrl);
+                const proxyResp = await fetch(proxyUrl);
+                if (!proxyResp.ok) throw new Error('Proxy access failed: ' + proxyResp.status);
+                textData = await proxyResp.text();
+            }
+
+            if (!textData || (!textData.includes('#EXTM3U') && !textData.includes('#EXTINF:'))) {
+                throw new Error('The specified URL did not return valid M3U/M3U8 content.');
+            }
+
+            // Build badge label
+            let sourceLabel = rawUrl;
+            try {
+                const u = new URL(rawUrl);
+                const lastPart = u.pathname.split('/').filter(Boolean).pop();
+                sourceLabel = '🌐 ' + (lastPart ? `${u.hostname}/${lastPart}` : u.hostname);
+            } catch (_) {
+                sourceLabel = '🌐 ' + rawUrl.substring(0, 35);
+            }
+
+            const addedCount = parseM3U(textData, sourceLabel);
+            input.value = '';
+            alert(`Successfully fetched ${addedCount} channels from URL and added to the list!`);
+        } catch (err) {
+            alert('Error fetching playlist:\n' + err.message + '\n\nNote: The server may be unreachable or the link may have expired.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+    }
+
+    function parseM3U(data, fileName) {
+        const newChannels = [];
+        const lines = data.split(/\r?\n/);
+        let currentChannel = null;
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (line.startsWith('#EXTINF:')) {
+                if (currentChannel && currentChannel.url) {
+                    newChannels.push(currentChannel);
+                }
+                currentChannel = { status: 'Not Tested', rowColor: '', backupUrls: [] };
+                let commaIndex = line.lastIndexOf(',');
+                if (commaIndex !== -1) {
+                    currentChannel.name = line.substring(commaIndex + 1);
+                    let metadata = line.substring(8, commaIndex);
+                    
+                    let groupMatch = metadata.match(/group-title="([^"]*)"/);
+                    let logoMatch = metadata.match(/tvg-logo="([^"]*)"/);
+                    let idMatch = metadata.match(/tvg-id="([^"]*)"/);
+                    let chnoMatch = metadata.match(/tvg-chno="([^"]*)"/);
+
+                    currentChannel.group = groupMatch ? groupMatch[1] : '';
+                    currentChannel.logo = logoMatch ? logoMatch[1] : '';
+                    currentChannel.tvgId = idMatch ? idMatch[1] : '';
+                    currentChannel.tvgChno = chnoMatch ? chnoMatch[1] : '';
+                }
+            } else if (line && currentChannel) {
+                if (!line.startsWith('#')) {
+                    if (!currentChannel.url) {
+                        currentChannel.url = line;
+                    } else {
+                        currentChannel.backupUrls.push({ url: '#' + line });
+                    }
+                } else if (line.startsWith('#http://') || line.startsWith('#https://') || line.startsWith('#rtmp://')) {
+                    currentChannel.backupUrls.push({ url: line });
+                }
+            }
+        }
+        if (currentChannel && currentChannel.url) {
+            newChannels.push(currentChannel);
+        }
+
+        channels = [...newChannels, ...channels];
+        resetSortIndicators();
+
+        uploadedFiles.push(fileName);
+        updateFileListDisplay();
+
+        renderTable();
+        document.getElementById('editorArea').style.display = 'block';
+        return newChannels.length;
+    }
+
+    // --- SORT BY COLUMN HEADER (A-Z / Z-A / RANDOM) ---
+    function cycleColumnSort(columnKey) {
+        if (channels.length <= 1) return;
+
+        let nextMode = 'asc';
+        if (sortState.column === columnKey) {
+            if (sortState.mode === 'asc') nextMode = 'desc';
+            else if (sortState.mode === 'desc') nextMode = 'random';
+            else if (sortState.mode === 'random') nextMode = 'asc';
+        }
+
+        sortState.column = columnKey;
+        sortState.mode = nextMode;
+
+        const watchingChannelObj = currentWatchingIndex !== null ? channels[currentWatchingIndex] : null;
+
+        if (nextMode === 'asc' || nextMode === 'desc') {
+            const dir = nextMode === 'asc' ? 1 : -1;
+            channels.sort((a, b) => {
+                const valA = (a[columnKey] || '').trim();
+                const valB = (b[columnKey] || '').trim();
+
+                if (!valA && !valB) return 0;
+                if (!valA) return 1;
+                if (!valB) return -1;
+
+                const cmp = valA.localeCompare(valB, undefined, { sensitivity: 'base' });
+                if (cmp !== 0) return cmp * dir;
+
+                const nameA = (a.name || '').trim();
+                const nameB = (b.name || '').trim();
+                return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' }) * dir;
+            });
+        } else if (nextMode === 'random') {
+            for (let i = channels.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [channels[i], channels[j]] = [channels[j], channels[i]];
+            }
+        }
+
+        if (watchingChannelObj) {
+            const newIdx = channels.indexOf(watchingChannelObj);
+            currentWatchingIndex = newIdx !== -1 ? newIdx : null;
+        }
+
+        updateSortIndicators();
+        renderTable();
+    }
+
+    function updateSortIndicators() {
+        const nameInd = document.getElementById('sort-indicator-name');
+        const groupInd = document.getElementById('sort-indicator-group');
+        if (!nameInd || !groupInd) return;
+
+        nameInd.textContent = '⇅';
+        groupInd.textContent = '⇅';
+
+        const modeLabels = {
+            'asc': '▲ A-Z',
+            'desc': '▼ Z-A',
+            'random': '🔀 Random'
+        };
+
+        if (sortState.column === 'name' && modeLabels[sortState.mode]) {
+            nameInd.textContent = modeLabels[sortState.mode];
+        } else if (sortState.column === 'group' && modeLabels[sortState.mode]) {
+            groupInd.textContent = modeLabels[sortState.mode];
+        }
+    }
+
+    function resetSortIndicators() {
+        sortState = { column: null, mode: 'none' };
+        updateSortIndicators();
+    }
+
+    function updateFileListDisplay() {
+        const container = document.getElementById('fileListDisplay');
+        container.innerHTML = '';
+        uploadedFiles.forEach((name, idx) => {
+            const badge = document.createElement('span');
+            badge.className = 'file-badge';
+            badge.textContent = `${idx + 1}. ${name}`;
+            container.appendChild(badge);
+        });
+    }
+
+    function renderTable() {
+        const tbody = document.querySelector('#channelTable tbody');
+        tbody.innerHTML = '';
+        document.getElementById('channelCount').textContent = channels.length;
+
+        const nameCounts = {};
+        channels.forEach(channel => {
+            let name = channel.name ? channel.name.trim().toLowerCase() : '';
+            nameCounts[name] = (nameCounts[name] || 0) + 1;
+        });
+
+        channels.forEach((channel, index) => {
+            if (!channel.backupUrls) channel.backupUrls = [];
+
+            if (autoChnoActive) {
+                channel.tvgChno = (index + 1).toString();
+            }
+
+            let statusClass = '';
+            if (channel.status === 'Online') statusClass = 'status-online';
+            else if (channel.status === 'Offline') statusClass = 'status-offline';
+            else if (channel.status === 'Testing...') statusClass = 'status-checking';
+
+            let cleanName = channel.name ? channel.name.trim().toLowerCase() : '';
+            let isDuplicateName = nameCounts[cleanName] > 1;
+            
+            let rowClass = isDuplicateName ? 'duplicate-row' : '';
+            if (channel.rowColor === 'green') rowClass += ' row-green';
+            else if (channel.rowColor === 'red') rowClass += ' row-red';
+            
+            if (currentWatchingIndex === index) {
+                rowClass += ' row-watching';
+            }
+
+            const tr = document.createElement('tr');
+            tr.className = rowClass.trim();
+            tr.id = `row-${index}`;
+            tr.draggable = true;
+            tr.dataset.index = index;
+
+            tr.addEventListener('dragstart', function(e) {
+                draggedIndex = index;
+                setTimeout(() => tr.classList.add('dragging'), 0);
+            });
+
+            tr.addEventListener('dragend', function(e) {
+                tr.classList.remove('dragging');
+                draggedIndex = null;
+            });
+
+            tr.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+
+            tr.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (draggedIndex === null || draggedIndex === index) return;
+                const movedItem = channels.splice(draggedIndex, 1)[0];
+                channels.splice(index, 0, movedItem);
+                if (currentWatchingIndex === draggedIndex) currentWatchingIndex = index;
+                resetSortIndicators();
+                renderTable();
+            });
+
+            let greenChecked = channel.rowColor === 'green' ? 'checked' : '';
+            let redChecked = channel.rowColor === 'red' ? 'checked' : '';
+
+            let backupHtml = '';
+            channel.backupUrls.forEach((bObj, bIdx) => {
+                backupHtml += `
+                    <div class="url-input-row" style="margin-top: 3px;">
+                        <input type="text" value="${bObj.url}" placeholder="#http://backup-url..." onchange="channels[${index}].backupUrls[${bIdx}].url=this.value" style="width: 70%;">
+                        <button class="watch" style="padding: 2px 5px; font-size: 10px;" onclick="watchBackupUrl(${index}, ${bIdx})" title="Watch Backup URL">Watch</button>
+                        <button class="danger" style="padding: 2px 5px; font-size: 10px;" onclick="removeBackupUrl(${index}, ${bIdx})" title="Delete Backup URL">X</button>
+                    </div>
+                `;
+            });
+
+            tr.innerHTML = `
+                <td class="drag-handle" title="Press and Drag to Reorder">☰</td>
+                <td style="text-align: center; font-weight: bold; color: #555;">${index + 1}</td>
+                <td><input type="text" value="${channel.name || ''}" onchange="channels[${index}].name=this.value; renderTable();"></td>
+                <td><input type="text" value="${channel.group || ''}" onchange="channels[${index}].group=this.value"></td>
+                <td><input type="text" value="${channel.logo || ''}" onchange="channels[${index}].logo=this.value"></td>
+                <td><input type="text" value="${channel.tvgId || ''}" onchange="channels[${index}].tvgId=this.value"></td>
+                <td><input type="text" value="${channel.tvgChno || ''}" onchange="channels[${index}].tvgChno=this.value"></td>
+                <td>
+                    <div class="url-cell-container">
+                        <div class="url-input-row">
+                            <input type="text" value="${channel.url || ''}" onchange="channels[${index}].url=this.value">
+                            <button class="btn-add-url" onclick="addBackupUrlField(${index})" title="Add Backup URL">+</button>
+                        </div>
+                        ${backupHtml}
+                    </div>
+                </td>
+                <td id="status-${index}" class="${statusClass}">${channel.status}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 3px; flex-wrap: nowrap;">
+                        <button class="watch" onclick="watchChannel(${index})" title="Watch">Watch</button>
+                        <button onclick="testSingleChannel(${index})" title="Test">Test</button>
+                        <button class="danger" onclick="deleteChannel(${index})" title="Delete">Delete</button>
+                        <span class="radio-bg-green" title="Green Highlight">
+                            <input type="radio" name="rowColor_${index}" ${greenChecked} onclick="handleRadioClick(this, ${index}, 'green')" style="margin:0; cursor:pointer;">
+                        </span>
+                        <span class="radio-bg-red" title="Red Highlight">
+                            <input type="radio" name="rowColor_${index}" ${redChecked} onclick="handleRadioClick(this, ${index}, 'red')" style="margin:0; cursor:pointer;">
+                        </span>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- EXPORT BY CATEGORY / GROUP FUNCTIONS ---
+    function openGroupExportModal() {
+        if (channels.length === 0) {
+            alert('There are no channels in the list yet!');
+            return;
+        }
+
+        const groupCounts = {};
+        channels.forEach(ch => {
+            const grp = (ch.group && ch.group.trim() !== '') ? ch.group.trim() : '(Uncategorized)';
+            groupCounts[grp] = (groupCounts[grp] || 0) + 1;
+        });
+
+        const container = document.getElementById('groupListContainer');
+        container.innerHTML = '';
+
+        const sortedGroups = Object.keys(groupCounts).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+        sortedGroups.forEach(grp => {
+            const div = document.createElement('div');
+            div.className = 'category-item';
+            div.innerHTML = `
+                <label>
+                    <input type="checkbox" class="group-export-checkbox" value="${grp.replace(/"/g, '"')}">
+                    <span>${grp}</span>
+                </label>
+                <span class="category-count-badge">${groupCounts[grp]} Channels</span>
+            `;
+            container.appendChild(div);
+        });
+
+        document.getElementById('groupExportModal').style.display = 'flex';
+    }
+
+    function closeGroupExportModal() {
+        document.getElementById('groupExportModal').style.display = 'none';
+    }
+
+    function toggleAllGroupCheckboxes(checkedState) {
+        document.querySelectorAll('.group-export-checkbox').forEach(cb => {
+            cb.checked = checkedState;
+        });
+    }
+
+    function exportSelectedGroups() {
+        const selectedCheckboxes = Array.from(document.querySelectorAll('.group-export-checkbox:checked'));
+        if (selectedCheckboxes.length === 0) {
+            alert('Please select at least one Group / Category!');
+            return;
+        }
+
+        const selectedGroups = new Set(selectedCheckboxes.map(cb => cb.value));
+
+        const filteredChannels = channels.filter(ch => {
+            const grp = (ch.group && ch.group.trim() !== '') ? ch.group.trim() : '(Uncategorized)';
+            return selectedGroups.has(grp);
+        });
+
+        if (filteredChannels.length === 0) {
+            alert('No channels found for the selected categories!');
+            return;
+        }
+
+        let fileName = 'selected_categories.m3u';
+        if (selectedGroups.size === 1) {
+            const singleName = Array.from(selectedGroups)[0].replace(/[^a-zA-Z0-9_-]/g, '_');
+            fileName = `${singleName}.m3u`;
+        }
+
+        generateAndDownloadM3U(filteredChannels, fileName);
+        closeGroupExportModal();
+    }
+
+    function generateAndDownloadM3U(channelList, fileName) {
+        let m3uContent = "#EXTM3U\n";
+        
+        channelList.forEach(ch => {
+            let attributes = '#EXTINF:-1';
+            
+            if (ch.tvgId && ch.tvgId.trim() !== '') attributes += ` tvg-id="${ch.tvgId.trim()}"`;
+            if (ch.name && ch.name.trim() !== '') attributes += ` tvg-name="${ch.name.trim()}"`;
+            if (ch.logo && ch.logo.trim() !== '') attributes += ` tvg-logo="${ch.logo.trim()}"`;
+            if (ch.group && ch.group.trim() !== '') attributes += ` group-title="${ch.group.trim()}"`;
+            if (ch.tvgChno && ch.tvgChno.trim() !== '') attributes += ` tvg-chno="${ch.tvgChno.trim()}"`;
+            
+            let channelName = ch.name ? ch.name.trim() : 'Untitled Channel';
+            let channelUrl = ch.url ? ch.url.trim() : '';
+
+            m3uContent += `${attributes},${channelName}\n`;
+            m3uContent += `${channelUrl}\n`;
+
+            if (ch.backupUrls && ch.backupUrls.length > 0) {
+                ch.backupUrls.forEach(bObj => {
+                    if (bObj.url && bObj.url.trim() !== '') {
+                        let formattedBackup = bObj.url.trim();
+                        if (!formattedBackup.startsWith('#')) {
+                            formattedBackup = '#' + formattedBackup;
+                        }
+                        m3uContent += `${formattedBackup}\n`;
+                    }
+                });
+            }
+            m3uContent += `\n`;
+        });
+
+        const blob = new Blob([m3uContent], { type: 'audio/x-mpegurl' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Add Backup URL
+    function addBackupUrlField(index) {
+        if (!channels[index].backupUrls) {
+            channels[index].backupUrls = [];
+        }
+        channels[index].backupUrls.push({ url: '#http://' });
+        renderTable();
+    }
+
+    // Delete Backup URL
+    function removeBackupUrl(channelIndex, backupIndex) {
+        channels[channelIndex].backupUrls.splice(backupIndex, 1);
+        renderTable();
+    }
+
+    // Watch Backup URL
+    function watchBackupUrl(channelIndex, backupIndex) {
+        currentWatchingIndex = channelIndex;
+        renderTable();
+
+        const channel = channels[channelIndex];
+        let rawUrl = channel.backupUrls[backupIndex].url.trim();
+        if (rawUrl.startsWith('#')) {
+            rawUrl = rawUrl.substring(1).trim();
+        }
+
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('videoPlayer');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = (channel.name ? channel.name.trim() : 'Channel') + ' (Backup URL) - Playing';
+        video.src = rawUrl;
+        modal.style.display = 'flex';
+        video.play().catch(e => {
+            console.log("Playback error:", e);
+        });
+    }
+
+    function handleRadioClick(radio, index, color) {
+        if (channels[index].rowColor === color) {
+            channels[index].rowColor = '';
+            radio.checked = false;
+        } else {
+            channels[index].rowColor = color;
+        }
+        renderTable();
+    }
+
+    function toggleAutoChno() {
+        autoChnoActive = !autoChnoActive;
+        if (!autoChnoActive) {
+            channels.forEach(ch => ch.tvgChno = '');
+            alert('Automatic channel numbering disabled.');
+        } else {
+            alert('Automatic channel numbering enabled!');
+        }
+        renderTable();
+    }
+
+    function watchChannel(index) {
+        currentWatchingIndex = index;
+        renderTable();
+
+        const channel = channels[index];
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('videoPlayer');
+        const title = document.getElementById('modalTitle');
+
+        title.textContent = (channel.name ? channel.name.trim() : 'Channel') + ' - Playing';
+        video.src = channel.url;
+        modal.style.display = 'flex';
+        video.play().catch(e => {
+            console.log("Playback error:", e);
+        });
+    }
+
+    function closePlayer() {
+        const modal = document.getElementById('playerModal');
+        const video = document.getElementById('videoPlayer');
+        video.pause();
+        video.src = '';
+        currentWatchingIndex = null;
+        renderTable();
+        modal.style.display = 'none';
+    }
+
+    function toggleAddBox() {
+        const box = document.getElementById('addChannelBox');
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function addNewChannel() {
+        const name = document.getElementById('newNameToAdd').value.trim();
+        const url = document.getElementById('newUrlToAdd').value.trim();
+
+        if (!name || !url) {
+            alert('Please fill in at least "Channel Name" and "Stream URL"!');
+            return;
+        }
+
+        const newChannel = {
+            name: name,
+            group: document.getElementById('newGroupToAdd').value.trim(),
+            logo: document.getElementById('newLogoToAdd').value.trim(),
+            tvgId: document.getElementById('newIdToAdd').value.trim(),
+            tvgChno: autoChnoActive ? (channels.length + 1).toString() : document.getElementById('newChnoToAdd').value.trim(),
+            url: url,
+            status: 'Not Tested',
+            rowColor: '',
+            backupUrls: []
+        };
+
+        channels.push(newChannel);
+        resetSortIndicators();
+        renderTable();
+
+        document.getElementById('newNameToAdd').value = '';
+        document.getElementById('newGroupToAdd').value = '';
+        document.getElementById('newLogoToAdd').value = '';
+        document.getElementById('newIdToAdd').value = '';
+        document.getElementById('newChnoToAdd').value = '';
+        document.getElementById('newUrlToAdd').value = '';
+
+        alert('New channel added successfully!');
+    }
+
+    function sortChannelsByName() {
+        channels.sort((a, b) => {
+            let nameA = a.name ? a.name.trim().toLowerCase() : '';
+            let nameB = b.name ? b.name.trim().toLowerCase() : '';
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+        });
+        currentWatchingIndex = null;
+        resetSortIndicators();
+        renderTable();
+        alert('Channels sorted by name!');
+    }
+
+    function removeDuplicateUrls() {
+        const uniqueUrls = new Set();
+        const uniqueChannels = [];
+        let duplicateCount = 0;
+
+        channels.forEach(channel => {
+            let cleanUrl = channel.url.trim();
+            if (!uniqueUrls.has(cleanUrl)) {
+                uniqueUrls.add(cleanUrl);
+                uniqueChannels.push(channel);
+            } else {
+                duplicateCount++;
+            }
+        });
+
+        channels = uniqueChannels;
+        currentWatchingIndex = null;
+        renderTable();
+        alert(`${duplicateCount} channels with duplicate URLs removed!`);
+    }
+
+    async function testSingleChannel(index) {
+        const channel = channels[index];
+        const statusTd = document.getElementById(`status-${index}`);
+        channel.status = 'Testing...';
+        statusTd.className = 'status-checking';
+        statusTd.textContent = channel.status;
+
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+            await fetch(channel.url, {
+                method: 'GET',
+                mode: 'no-cors',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            channel.status = 'Online';
+            statusTd.className = 'status-online';
+            statusTd.textContent = channel.status;
+        } catch (error) {
+            channel.status = 'Offline';
+            statusTd.className = 'status-offline';
+            statusTd.textContent = channel.status;
+        }
+    }
+
+    async function testAllChannels() {
+        for (let i = 0; i < channels.length; i++) {
+            await testSingleChannel(i);
+        }
+        alert('All channel tests completed!');
+    }
+
+    function deleteChannel(index) {
+        if (currentWatchingIndex === index) {
+            closePlayer();
+        }
+        channels.splice(index, 1);
+        if (currentWatchingIndex !== null && currentWatchingIndex > index) {
+            currentWatchingIndex--;
+        }
+        renderTable();
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        generateAndDownloadM3U(channels, 'edited_clean_playlist.m3u');
+    });
+</script>
+
+</body>
+</html>
